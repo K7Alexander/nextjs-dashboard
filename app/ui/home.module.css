@@ -1,0 +1,14 @@
+/* just an example how to use css modules  */
+/* exports a black triangle */
+
+/* Import in page.tsx */
+/* import styles from '@/app/ui/home.module.css'; */
+/*           <div className={styles.shape} /> */
+
+/* .shape {
+  height: 0;
+  width: 0;
+  border-bottom: 30px solid black;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+} */

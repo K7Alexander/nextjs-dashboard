@@ -1,0 +1,22 @@
+CSS
+- style with tailwind or css modules
+- use cslx to conditionally toggle css/tailwind/classes https://nextjs.org/learn/dashboard-app/css-styling#using-the-clsx-library-to-toggle-class-names 
+
+Font
+- add google fonts with next/fonts to layout.tsx and wrap all children
+- add another google font to page.tsx for the title
+
+Image
+- modern formats: WebP, AVIF
+- add images with next <Image>
+- use the same picture with different dimensions and hide it for different sizes
+
+Routes and Layout
+- create routes by creating folders with subfolders and setting page.tsx as an endpoint
+- create a layout.tsx e.g. in dashboard, so all pages and subpages can share a layout 
+- on navigaiton, the layout won't rerender, only the pages
+- when you add something to the root layout.tsx, it will be inherited by the full app
+
+Navigation
+- client side navigation with next <Link>
+- highlight currently active link with usePathname and clsx
