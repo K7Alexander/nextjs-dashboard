@@ -20,3 +20,76 @@ Routes and Layout
 Navigation
 - client side navigation with next <Link>
 - highlight currently active link with usePathname and clsx
+
+Deploy
+- add the project to github as respository
+- connect vercel with the respository
+- create and connect vercel postgres database
+- copy .env.local text from vercel
+- in codebase: create or change to .env file on the outermost level (same level as app folder)
+    - and paste the vercel text
+- MAKE SURE; THAT .evn is in GIT IGNORE so you dont publish the credentials!!!
+- Then: run npm i @vercel/postgres
+
+Seed database:
+- have a seed.js script that creates the tables
+- add:   "seed": "node -r dotenv/config ./scripts/seed.js" to package.json scripts
+- run: npm run seed
+
+Fetch database
+- create API endpoints using route handler to safely send data to a client
+- if you use react server components, you can query the database directly as it will not be sent to the client
+- Vercel Postgres SDK provides protection against SQL injections
+
+- add all sql queries to lib/data.ts which is a server components
+
+- create the dashboard page.tsx -> an async component to await fetched data
+- import the fetch functions 
+    - import { fetchRevenue } from '@/app/lib/data';
+    - const revenue = await fetchRevenue();
+
+- 2 Problems:
+    - Problem 1: The data requests are unintentionally blocking each other, creating a request waterfall.
+    
+    -> waterfalls can make sense if you want a condition to be satisfied before making the next request
+    -> but in our case it means fetchRevenue must be completed to fetchLatestInvoices
+    
+    - Solution 1:
+    - parallel data fetching with Promise.all() or Promise.allSettled() -> use it in fetchCardData()
+
+    - Problem 2: By default, Next.js prerenders routes to improve performance, this is called Static Rendering. So if your data changes, it won't be reflected in your dashboard.
+
+    - With static rendering, data fetching and rendering happens on the server at build time (when you deploy)
+    -> it can therefore not react to the latest data changes
+
+    - Solution 2: Dynamic rendering renders content on the server at request time
+    -> making the dashboard dynamic with import { unstable_noStore as noStore } from 'next/cache'; in data.ts
+
+-----> LEADS TO PROBLEM 3: With dynamic rendering, your application is only as fast as your slowest data fetch.
+
+    - Solution: Streaming (steam all finished chunks to UI)
+
+    - create loading.tsx for dashboard
+    - import the loadingskeleton so show while loading
+
+    - that the loading screen only applies to the dashboard component and not to "customers" and "invoce", we have to change route groups
+    -> create (overview) folder in dashboard and move page.tsx and loading.tsx within that
+
+    - Imlement streaming:
+    - as we have slowed down fetchRevenue() by 3 seconds, we now have to extract that and put it in a suspense container
+    -> fetchRevenue & fetchLatesInvoices are moved to their respective components
+    -> inside the dashboard page.tsx you create suspense fallbacks
+
+
+    - now: we want to wrap the card component in suspense
+    - but: wrapping the single cars would cause 4 pop ins
+    - create a staggered effect in cards.tsx
+
+Partial prerendering:
+- experimental feature: allows to render a route with mixed dynamic an static parts
+-> using suspense doesnt make the component itself dynamic (using noStore() did)
+-> but: suspense sets the boundary betweeen the dynamic and static parts!
+
+
+
+
